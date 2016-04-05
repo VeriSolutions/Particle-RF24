@@ -1,6 +1,5 @@
 /*
  Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
-
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
@@ -342,11 +341,11 @@ s   *
    * @code
    * Example (Partial blocking):
    *
-   *			radio.writeFast(&buf,32);  // Writes 1 payload to the buffers
-   *			txStandBy();     		   // Returns 0 if failed. 1 if success. Blocks only until MAX_RT timeout or success. Data flushed on fail.
+   *      radio.writeFast(&buf,32);  // Writes 1 payload to the buffers
+   *      txStandBy();           // Returns 0 if failed. 1 if success. Blocks only until MAX_RT timeout or success. Data flushed on fail.
    *
-   *			radio.writeFast(&buf,32);  // Writes 1 payload to the buffers
-   *			txStandBy(1000);		   // Using extended timeouts, returns 1 if success. Retries failed payloads for 1 seconds before returning 0.
+   *      radio.writeFast(&buf,32);  // Writes 1 payload to the buffers
+   *      txStandBy(1000);       // Using extended timeouts, returns 1 if success. Retries failed payloads for 1 seconds before returning 0.
    * @endcode
    *
    * @see txStandBy()
@@ -384,9 +383,9 @@ s   *
    * @code
    * Example (Full blocking):
    *
-   *			radio.writeBlocking(&buf,32,1000); //Wait up to 1 second to write 1 payload to the buffers
-   *			txStandBy(1000);     			   //Wait up to 1 second for the payload to send. Return 1 if ok, 0 if failed.
-   *					  				   		   //Blocks only until user timeout or success. Data flushed on fail.
+   *      radio.writeBlocking(&buf,32,1000); //Wait up to 1 second to write 1 payload to the buffers
+   *      txStandBy(1000);             //Wait up to 1 second for the payload to send. Return 1 if ok, 0 if failed.
+   *                             //Blocks only until user timeout or success. Data flushed on fail.
    * @endcode
    * @note If used from within an interrupt, the interrupt should be disabled until completion, and sei(); called to enable millis().
    * @see txStandBy()
@@ -416,11 +415,11 @@ s   *
    * @code
    * Example (Partial blocking):
    *
-   *			radio.writeFast(&buf,32);
-   *			radio.writeFast(&buf,32);
-   *			radio.writeFast(&buf,32);  //Fills the FIFO buffers up
-   *			bool ok = txStandBy();     //Returns 0 if failed. 1 if success.
-   *					  				   //Blocks only until MAX_RT timeout or success. Data flushed on fail.
+   *      radio.writeFast(&buf,32);
+   *      radio.writeFast(&buf,32);
+   *      radio.writeFast(&buf,32);  //Fills the FIFO buffers up
+   *      bool ok = txStandBy();     //Returns 0 if failed. 1 if success.
+   *                       //Blocks only until MAX_RT timeout or success. Data flushed on fail.
    * @endcode
    * @see txStandBy(unsigned long timeout)
    * @return True if transmission is successful
@@ -431,13 +430,13 @@ s   *
   /**
    * This function allows extended blocking and auto-retries per a user defined timeout
    * @code
-   *	Fully Blocking Example:
+   *  Fully Blocking Example:
    *
-   *			radio.writeFast(&buf,32);
-   *			radio.writeFast(&buf,32);
-   *			radio.writeFast(&buf,32);   //Fills the FIFO buffers up
-   *			bool ok = txStandBy(1000);  //Returns 0 if failed after 1 second of retries. 1 if success.
-   *					  				    //Blocks only until user defined timeout or success. Data flushed on fail.
+   *      radio.writeFast(&buf,32);
+   *      radio.writeFast(&buf,32);
+   *      radio.writeFast(&buf,32);   //Fills the FIFO buffers up
+   *      bool ok = txStandBy(1000);  //Returns 0 if failed after 1 second of retries. 1 if success.
+   *                        //Blocks only until user defined timeout or success. Data flushed on fail.
    * @endcode
    * @note If used from within an interrupt, the interrupt should be disabled until completion, and sei(); called to enable millis().
    * @param timeout Number of milliseconds to retry failed payloads
@@ -620,7 +619,7 @@ s   *
    *  if(radio.failureDetected){
    *    radio.begin();                       // Attempt to re-configure the radio with defaults
    *    radio.failureDetected = 0;           // Reset the detection value
-   *	radio.openWritingPipe(addresses[1]); // Re-configure pipe addresses
+   *  radio.openWritingPipe(addresses[1]); // Re-configure pipe addresses
    *    radio.openReadingPipe(1,addresses[0]);
    *    report_failure();                    // Blink leds, send a message, etc. to indicate failure
    *  }
@@ -851,9 +850,9 @@ s   *
   * pin. Interrupts are enabled on the radio chip by default.
   *
   * @code
-  * 	Mask all interrupts except the receive interrupt:
+  *   Mask all interrupts except the receive interrupt:
   *
-  *		radio.maskIRQ(1,1,0);
+  *   radio.maskIRQ(1,1,0);
   * @endcode
   *
   * @param tx_ok  Mask transmission complete interrupts
@@ -1454,7 +1453,7 @@ private:
  *    **ATtiny25/45/85 Pin map with CE_PIN 3 and CSN_PIN 3** => PB3 and PB4 are free to use for application <br>
  *    Circuit idea from http://nerdralph.blogspot.ca/2014/01/nrf24l01-control-with-3-attiny85-pins.html <br>
  *   Original RC combination was 1K/100nF. 22K/10nF combination worked better.                          <br>
- *	For best settletime delay value in RF24::csn() the timingSearch3pin.ino sketch can be used.         <br>
+ *  For best settletime delay value in RF24::csn() the timingSearch3pin.ino sketch can be used.         <br>
  *    This configuration is enabled when CE_PIN and CSN_PIN are equal, e.g. both 3                      <br>
  *    Because CE is always high the power consumption is higher than for 5 pins solution                <br>
  * @code
@@ -1471,7 +1470,7 @@ private:
  *
  * <br>
  *    **ATtiny24/44/84 Pin map with CE_PIN 8 and CSN_PIN 7** <br>
- *	Schematic provided and successfully tested by Carmine Pastore (https://github.com/Carminepz) <br>
+ *  Schematic provided and successfully tested by Carmine Pastore (https://github.com/Carminepz) <br>
  * @code
  *                                  +-\/-+
  *    nRF24L01  VCC, pin2 --- VCC  1|o   |14 GND --- nRF24L01  GND, pin1
@@ -1482,7 +1481,7 @@ private:
  *                            PA7  6|    |9  PA4 --- nRF24L01  SCK, pin5
  *    nRF24L01 MOSI, pin7 --- PA6  7|    |8  PA5 --- nRF24L01 MISO, pin6
  *                                  +----+
- *	@endcode
+ *  @endcode
  *
  * <br><br><br>
  *
@@ -1818,4 +1817,3 @@ private:
  */
 
 #endif // __RF24_H__
-

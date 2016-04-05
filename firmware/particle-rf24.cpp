@@ -1,6 +1,5 @@
 /*
  Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
-
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
@@ -41,7 +40,7 @@ void RF24::csn(bool mode)
   //SPI.setClockDivider(SPI_CLOCK_DIV32); // 2.25Mhz (if using <= 1mbps data rate)
 
   digitalWrite(csn_pin,mode);
-	delayMicroseconds(5);
+  delayMicroseconds(5);
 }
 
 /****************************************************************************/
@@ -118,13 +117,13 @@ uint8_t RF24::write_register(uint8_t reg, uint8_t value)
 
   #if defined (RF24_LINUX)
     csn(LOW);
-	uint8_t * prx = spi_rxbuff;
-	uint8_t * ptx = spi_txbuff;
-	*ptx++ = ( W_REGISTER | ( REGISTER_MASK & reg ) );
-	*ptx = value ;
+  uint8_t * prx = spi_rxbuff;
+  uint8_t * ptx = spi_txbuff;
+  *ptx++ = ( W_REGISTER | ( REGISTER_MASK & reg ) );
+  *ptx = value ;
 
-	SPI.transfernb( (char *) spi_txbuff, (char *) spi_rxbuff, 2);
-	status = *prx++; // status is 1st byte of receive buffer
+  SPI.transfernb( (char *) spi_txbuff, (char *) spi_rxbuff, 2);
+  status = *prx++; // status is 1st byte of receive buffer
 
   #else
 
@@ -460,13 +459,13 @@ void RF24::startListening(void)
   if (pipe0_reading_address[0] > 0){
     write_register(RX_ADDR_P0, pipe0_reading_address, addr_width);
   }else{
-	closeReadingPipe(0);
+  closeReadingPipe(0);
   }
 
   // Flush buffers
   //flush_rx();
   if(read_register(FEATURE) & _BV(EN_ACK_PAY)){
-	flush_tx();
+  flush_tx();
   }
 
   // Go!
@@ -487,7 +486,7 @@ void RF24::stopListening(void)
 
   if(read_register(FEATURE) & _BV(EN_ACK_PAY)){
     delayMicroseconds(txRxDelay); //200
-	flush_tx();
+  flush_tx();
   }
   //flush_rx();
   write_register(CONFIG, ( read_register(CONFIG) ) & ~_BV(PRIM_RX) );
@@ -518,8 +517,8 @@ void RF24::powerUp(void)
       write_register(CONFIG,read_register(CONFIG) | _BV(PWR_UP));
 
       // For nRF24L01+ to go from power down mode to TX or RX mode it must first pass through stand-by mode.
-	  // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
-	  // the CEis set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
+    // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
+    // the CEis set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
       delay(5);
    }
 }
@@ -527,14 +526,14 @@ void RF24::powerUp(void)
 /******************************************************************/
 #if defined (FAILURE_HANDLING)
 void RF24::errNotify(){
-	#if defined (SERIAL_DEBUG)
-	  SERIAL("RF24 HARDWARE FAIL: Radio not responding, verify pin connections, wiring, etc.\r\n");
-	#endif
-	#if defined (FAILURE_HANDLING)
-	failureDetected = 1;
-	#else
-	delay(5000);
-	#endif
+  #if defined (SERIAL_DEBUG)
+    SERIAL("RF24 HARDWARE FAIL: Radio not responding, verify pin connections, wiring, etc.\r\n");
+  #endif
+  #if defined (FAILURE_HANDLING)
+  failureDetected = 1;
+  #else
+  delay(5000);
+  #endif
 }
 #endif
 /******************************************************************/
@@ -542,125 +541,125 @@ void RF24::errNotify(){
 //Similar to the previous write, clears the interrupt flags
 bool RF24::write( const void* buf, uint8_t len, const bool multicast )
 {
-	//Start Writing
-	startFastWrite(buf,len,multicast);
+  //Start Writing
+  startFastWrite(buf,len,multicast);
 
-	//Wait until complete or failed
-	#if defined (FAILURE_HANDLING)
-		uint32_t timer = millis();
-	#endif
+  //Wait until complete or failed
+  #if defined (FAILURE_HANDLING)
+    uint32_t timer = millis();
+  #endif
 
-	while( ! ( get_status()  & ( _BV(TX_DS) | _BV(MAX_RT) ))) {
-		#if defined (FAILURE_HANDLING)
-			if(millis() - timer > 85){
-				errNotify();
-				#if defined (FAILURE_HANDLING)
-				  return 0;
-				#else
-				  delay(100);
-				#endif
-			}
-		#endif
-	}
+  while( ! ( get_status()  & ( _BV(TX_DS) | _BV(MAX_RT) ))) {
+    #if defined (FAILURE_HANDLING)
+      if(millis() - timer > 85){
+        errNotify();
+        #if defined (FAILURE_HANDLING)
+          return 0;
+        #else
+          delay(100);
+        #endif
+      }
+    #endif
+  }
 
-	ce(LOW);
+  ce(LOW);
 
-	uint8_t status = write_register(NRF_STATUS,_BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
+  uint8_t status = write_register(NRF_STATUS,_BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 
   //Max retries exceeded
   if( status & _BV(MAX_RT)){
-  	flush_tx(); //Only going to be 1 packet int the FIFO at a time using this method, so just flush
-  	return 0;
+    flush_tx(); //Only going to be 1 packet int the FIFO at a time using this method, so just flush
+    return 0;
   }
-	//TX OK 1 or 0
+  //TX OK 1 or 0
   return 1;
 }
 
 bool RF24::write( const void* buf, uint8_t len ){
-	return write(buf,len,0);
+  return write(buf,len,0);
 }
 /****************************************************************************/
 
 //For general use, the interrupt flags are not important to clear
 bool RF24::writeBlocking( const void* buf, uint8_t len, uint32_t timeout )
 {
-	//Block until the FIFO is NOT full.
-	//Keep track of the MAX retries and set auto-retry if seeing failures
-	//This way the FIFO will fill up and allow blocking until packets go through
-	//The radio will auto-clear everything in the FIFO as long as CE remains high
+  //Block until the FIFO is NOT full.
+  //Keep track of the MAX retries and set auto-retry if seeing failures
+  //This way the FIFO will fill up and allow blocking until packets go through
+  //The radio will auto-clear everything in the FIFO as long as CE remains high
 
-	uint32_t timer = millis();							  //Get the time that the payload transmission started
+  uint32_t timer = millis();                //Get the time that the payload transmission started
 
-	while( ( get_status()  & ( _BV(TX_FULL) ))) {		  //Blocking only if FIFO is full. This will loop and block until TX is successful or timeout
+  while( ( get_status()  & ( _BV(TX_FULL) ))) {     //Blocking only if FIFO is full. This will loop and block until TX is successful or timeout
 
-		if( get_status() & _BV(MAX_RT)){					  //If MAX Retries have been reached
-			reUseTX();										  //Set re-transmit and clear the MAX_RT interrupt flag
-			if(millis() - timer > timeout){ return 0; }		  //If this payload has exceeded the user-defined timeout, exit and return 0
-		}
-		#if defined (FAILURE_HANDLING)
-			if(millis() - timer > (timeout+85) ){
-				errNotify();
-				#if defined (FAILURE_HANDLING)
-				return 0;
+    if( get_status() & _BV(MAX_RT)){            //If MAX Retries have been reached
+      reUseTX();                      //Set re-transmit and clear the MAX_RT interrupt flag
+      if(millis() - timer > timeout){ return 0; }     //If this payload has exceeded the user-defined timeout, exit and return 0
+    }
+    #if defined (FAILURE_HANDLING)
+      if(millis() - timer > (timeout+85) ){
+        errNotify();
+        #if defined (FAILURE_HANDLING)
+        return 0;
                 #endif
-			}
-		#endif
+      }
+    #endif
 
-  	}
+    }
 
-  	//Start Writing
-	startFastWrite(buf,len,0);								  //Write the payload if a buffer is clear
+    //Start Writing
+  startFastWrite(buf,len,0);                  //Write the payload if a buffer is clear
 
-	return 1;												  //Return 1 to indicate successful transmission
+  return 1;                         //Return 1 to indicate successful transmission
 }
 
 /****************************************************************************/
 
 void RF24::reUseTX(){
-		write_register(NRF_STATUS,_BV(MAX_RT) );			  //Clear max retry flag
-		spiTrans( REUSE_TX_PL );
-		ce(LOW);										  //Re-Transfer packet
-		ce(HIGH);
+    write_register(NRF_STATUS,_BV(MAX_RT) );        //Clear max retry flag
+    spiTrans( REUSE_TX_PL );
+    ce(LOW);                      //Re-Transfer packet
+    ce(HIGH);
 }
 
 /****************************************************************************/
 
 bool RF24::writeFast( const void* buf, uint8_t len, const bool multicast )
 {
-	//Block until the FIFO is NOT full.
-	//Keep track of the MAX retries and set auto-retry if seeing failures
-	//Return 0 so the user can control the retrys and set a timer or failure counter if required
-	//The radio will auto-clear everything in the FIFO as long as CE remains high
+  //Block until the FIFO is NOT full.
+  //Keep track of the MAX retries and set auto-retry if seeing failures
+  //Return 0 so the user can control the retrys and set a timer or failure counter if required
+  //The radio will auto-clear everything in the FIFO as long as CE remains high
 
-	#if defined (FAILURE_HANDLING)
-		uint32_t timer = millis();
-	#endif
+  #if defined (FAILURE_HANDLING)
+    uint32_t timer = millis();
+  #endif
 
-	while( ( get_status()  & ( _BV(TX_FULL) ))) {			  //Blocking only if FIFO is full. This will loop and block until TX is successful or fail
+  while( ( get_status()  & ( _BV(TX_FULL) ))) {       //Blocking only if FIFO is full. This will loop and block until TX is successful or fail
 
-		if( get_status() & _BV(MAX_RT)){
-			//reUseTX();										  //Set re-transmit
-			write_register(NRF_STATUS,_BV(MAX_RT) );			  //Clear max retry flag
-			return 0;										  //Return 0. The previous payload has been retransmitted
-															  //From the user perspective, if you get a 0, just keep trying to send the same payload
-		}
-		#if defined (FAILURE_HANDLING)
-			if(millis() - timer > 85 ){
-				errNotify();
-				#if defined (FAILURE_HANDLING)
-				return 0;
-				#endif
-			}
-		#endif
-  	}
-		     //Start Writing
-	startFastWrite(buf,len,multicast);
+    if( get_status() & _BV(MAX_RT)){
+      //reUseTX();                      //Set re-transmit
+      write_register(NRF_STATUS,_BV(MAX_RT) );        //Clear max retry flag
+      return 0;                     //Return 0. The previous payload has been retransmitted
+                                //From the user perspective, if you get a 0, just keep trying to send the same payload
+    }
+    #if defined (FAILURE_HANDLING)
+      if(millis() - timer > 85 ){
+        errNotify();
+        #if defined (FAILURE_HANDLING)
+        return 0;
+        #endif
+      }
+    #endif
+    }
+         //Start Writing
+  startFastWrite(buf,len,multicast);
 
-	return 1;
+  return 1;
 }
 
 bool RF24::writeFast( const void* buf, uint8_t len ){
-	return writeFast(buf,len,0);
+  return writeFast(buf,len,0);
 }
 
 /****************************************************************************/
@@ -672,11 +671,11 @@ bool RF24::writeFast( const void* buf, uint8_t len ){
 
 void RF24::startFastWrite( const void* buf, uint8_t len, const bool multicast, bool startTx){ //TMRh20
 
-	//write_payload( buf,len);
-	write_payload( buf, len,multicast ? W_TX_PAYLOAD_NO_ACK : W_TX_PAYLOAD ) ;
-	if(startTx){
-		ce(HIGH);
-	}
+  //write_payload( buf,len);
+  write_payload( buf, len,multicast ? W_TX_PAYLOAD_NO_ACK : W_TX_PAYLOAD ) ;
+  if(startTx){
+    ce(HIGH);
+  }
 
 }
 
@@ -691,7 +690,7 @@ void RF24::startWrite( const void* buf, uint8_t len, const bool multicast ){
   //write_payload( buf, len );
   write_payload( buf, len,multicast? W_TX_PAYLOAD_NO_ACK : W_TX_PAYLOAD ) ;
   ce(HIGH);
-	delayMicroseconds(15);
+  delayMicroseconds(15);
   ce(LOW);
 
 
@@ -700,34 +699,34 @@ void RF24::startWrite( const void* buf, uint8_t len, const bool multicast ){
 /****************************************************************************/
 
 bool RF24::rxFifoFull(){
-	return read_register(FIFO_STATUS) & _BV(RX_FULL);
+  return read_register(FIFO_STATUS) & _BV(RX_FULL);
 }
 /****************************************************************************/
 
 bool RF24::txStandBy(){
 
   #if defined (FAILURE_HANDLING)
-		uint32_t timeout = millis();
-	#endif
-	while( ! (read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
-		if( get_status() & _BV(MAX_RT)){
-			write_register(NRF_STATUS,_BV(MAX_RT) );
-			ce(LOW);
-			flush_tx();    //Non blocking, flush the data
-			return 0;
-		}
-		#if defined (FAILURE_HANDLING)
-			if( millis() - timeout > 85){
-				errNotify();
-				#if defined (FAILURE_HANDLING)
-				return 0;
-				#endif
-			}
-		#endif
-	}
+    uint32_t timeout = millis();
+  #endif
+  while( ! (read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
+    if( get_status() & _BV(MAX_RT)){
+      write_register(NRF_STATUS,_BV(MAX_RT) );
+      ce(LOW);
+      flush_tx();    //Non blocking, flush the data
+      return 0;
+    }
+    #if defined (FAILURE_HANDLING)
+      if( millis() - timeout > 85){
+        errNotify();
+        #if defined (FAILURE_HANDLING)
+        return 0;
+        #endif
+      }
+    #endif
+  }
 
-	ce(LOW);			   //Set STANDBY-I mode
-	return 1;
+  ce(LOW);         //Set STANDBY-I mode
+  return 1;
 }
 
 /****************************************************************************/
@@ -735,33 +734,33 @@ bool RF24::txStandBy(){
 bool RF24::txStandBy(uint32_t timeout, bool startTx){
 
   if(startTx){
-	  stopListening();
-	  ce(HIGH);
-	}
-	uint32_t start = millis();
+    stopListening();
+    ce(HIGH);
+  }
+  uint32_t start = millis();
 
-	while( ! (read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
-		if( get_status() & _BV(MAX_RT)){
-			write_register(NRF_STATUS,_BV(MAX_RT) );
-				ce(LOW);										  //Set re-transmit
-				ce(HIGH);
-				if(millis() - start >= timeout){
-					ce(LOW); flush_tx(); return 0;
-				}
-		}
-		#if defined (FAILURE_HANDLING)
-			if( millis() - start > (timeout+85)){
-				errNotify();
-				#if defined (FAILURE_HANDLING)
-				return 0;
-				#endif
-			}
-		#endif
-	}
+  while( ! (read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
+    if( get_status() & _BV(MAX_RT)){
+      write_register(NRF_STATUS,_BV(MAX_RT) );
+        ce(LOW);                      //Set re-transmit
+        ce(HIGH);
+        if(millis() - start >= timeout){
+          ce(LOW); flush_tx(); return 0;
+        }
+    }
+    #if defined (FAILURE_HANDLING)
+      if( millis() - start > (timeout+85)){
+        errNotify();
+        #if defined (FAILURE_HANDLING)
+        return 0;
+        #endif
+      }
+    #endif
+  }
 
 
-	ce(LOW);				   //Set STANDBY-I mode
-	return 1;
+  ce(LOW);           //Set STANDBY-I mode
+  return 1;
 
 }
 
@@ -769,7 +768,7 @@ bool RF24::txStandBy(uint32_t timeout, bool startTx){
 
 void RF24::maskIRQ(bool tx, bool fail, bool rx){
 
-	write_register(CONFIG, ( read_register(CONFIG) ) | fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR  );
+  write_register(CONFIG, ( read_register(CONFIG) ) | fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR  );
 }
 
 /****************************************************************************/
@@ -802,10 +801,10 @@ bool RF24::available(uint8_t* pipe_num)
 
     // If the caller wants the pipe number, include that
     if ( pipe_num ){
-	  uint8_t status = get_status();
+    uint8_t status = get_status();
       *pipe_num = ( status >> RX_P_NO ) & 0b111;
-  	}
-  	return 1;
+    }
+    return 1;
   }
 
 
@@ -910,10 +909,10 @@ void RF24::openReadingPipe(uint8_t child, uint64_t address)
 /****************************************************************************/
 void RF24::setAddressWidth(uint8_t a_width){
 
-	if(a_width -= 2){
-		write_register(SETUP_AW,a_width%4);
-		addr_width = (a_width%4) + 2;
-	}
+  if(a_width -= 2){
+    write_register(SETUP_AW,a_width%4);
+    addr_width = (a_width%4) + 2;
+  }
 
 }
 
@@ -934,7 +933,7 @@ void RF24::openReadingPipe(uint8_t child, const uint8_t *address)
       write_register(pgm_read_byte(&child_pipe[child]), address, addr_width);
     }else{
       write_register(pgm_read_byte(&child_pipe[child]), address, 1);
-	}
+  }
     write_register(pgm_read_byte(&child_payload_size[child]),payload_size);
 
     // Note it would be more efficient to set all of the bits for all open
@@ -958,9 +957,9 @@ void RF24::toggle_features(void)
 {
 
   beginTransaction();
-	SPI.transfer( ACTIVATE );
+  SPI.transfer( ACTIVATE );
   SPI.transfer( 0x73 );
-	endTransaction();
+  endTransaction();
 
 }
 
@@ -1101,14 +1100,14 @@ void RF24::setPALevel(uint8_t level)
 
   uint8_t setup = read_register(RF_SETUP) & 0b11111000;
 
-  if(level > 3){  						// If invalid level, go to max PA
-	  level = (RF24_PA_MAX << 1) + 1;		// +1 to support the SI24R1 chip extra bit
+  if(level > 3){              // If invalid level, go to max PA
+    level = (RF24_PA_MAX << 1) + 1;   // +1 to support the SI24R1 chip extra bit
   }else{
-	  level = (level << 1) + 1;	 		// Else set level as requested
+    level = (level << 1) + 1;     // Else set level as requested
   }
 
 
-  write_register( RF_SETUP, setup |= level ) ;	// Write it to the chip
+  write_register( RF_SETUP, setup |= level ) ;  // Write it to the chip
 }
 
 /****************************************************************************/
