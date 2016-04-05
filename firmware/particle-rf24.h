@@ -14,7 +14,7 @@
 #ifndef __RF24_H__
 #define __RF24_H__
 
-#include <particle_rf24_config.h>
+#include <particle_rf24/particle_rf24_config.h>
 
 /**
  * Power Amplifier level.
