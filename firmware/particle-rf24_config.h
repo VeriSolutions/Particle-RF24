@@ -9,7 +9,7 @@
 #define __RF24_CONFIG_H__
 
 #if ARDUINO < 100
-#include <WProgram.h>
+//#include <WProgram.h>
 #else
 #include <Arduino.h>
 #endif
